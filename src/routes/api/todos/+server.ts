@@ -2,6 +2,7 @@ import type { RequestHandler } from '@sveltejs/kit';
 import { prisma } from '$lib/prisma';
 import { json, error } from '@sveltejs/kit';
 
+// post request to upload all the tasks
 export const POST: RequestHandler = async ({ request, locals }) => {
 	console.log('USER:', locals.user);
 
@@ -23,4 +24,22 @@ export const POST: RequestHandler = async ({ request, locals }) => {
 	});
 
 	return json(todo, { status: 201 });
+};
+
+// get request to fetch all the tasks
+export const GET: RequestHandler = async ({ locals }) => {
+	if (!locals.user) {
+		throw error(401, 'Unauthorized');
+	}
+
+	const todos = await prisma.todo.findMany({
+		where: {
+			userId: locals.user.id
+		},
+		orderBy: {
+			createdAt: 'desc'
+		}
+	});
+
+	return json(todos);
 };

@@ -22,7 +22,7 @@
     }
 </script>
 
-<div class="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-50 to-gray-100 px-4">
+<div class="min-h-screen flex items-center justify-center bg-linear-to-br from-gray-50 to-gray-100 px-4">
 	<div class="w-full max-w-md">
 		<div class="bg-white rounded-2xl shadow-sm border border-gray-200 p-8">
 			<h1 class="text-3xl font-light text-gray-900 mb-8 text-center tracking-tight">
