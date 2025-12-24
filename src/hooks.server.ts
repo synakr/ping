@@ -1,25 +1,28 @@
 import type { Handle } from '@sveltejs/kit';
-import { supabase } from '$lib/supabase.server';
+import { createServerClient } from '@supabase/ssr';
+import { PUBLIC_SUPABASE_URL, PUBLIC_SUPABASE_ANON_KEY } from '$env/static/public';
 
 export const handle: Handle = async ({ event, resolve }) => {
-	console.log('🔥 HOOK EXECUTED');
-
-	const authHeader = event.request.headers.get('authorization');
-
-	if (authHeader && authHeader.startsWith('Bearer ')) {
-		const token = authHeader.replace('Bearer ', '');
-
-		const { data, error } = await supabase.auth.getUser(token);
-
-		if (error) {
-			console.error('Auth error:', error.message);
-			event.locals.user = null;
-		} else {
-			event.locals.user = data.user;
+	// cookie-based auth
+	// creating a server-side Supabase client (request-scoped)
+	const supabase = createServerClient(PUBLIC_SUPABASE_URL, PUBLIC_SUPABASE_ANON_KEY, {
+		cookies: {
+			get: (key) => event.cookies.get(key),
+			set: (key, value, options) =>
+				event.cookies.set(key, value, {
+					path: '/',
+					...options
+				}),
+			remove: (key, options) =>
+				event.cookies.delete(key, {
+					path: '/',
+					...options
+				})
 		}
-	} else {
-		event.locals.user = null;
-	}
+	});
+	console.log('HOOK EXECUTED');
+	const { data } = await supabase.auth.getUser();
+	event.locals.user = data.user ?? null;
 
 	return resolve(event);
 };

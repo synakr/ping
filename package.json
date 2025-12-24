@@ -37,6 +37,8 @@
 	},
 	"dependencies": {
 		"@prisma/client": "^5.7.1",
+		"@supabase/auth-helpers-sveltekit": "^0.15.0",
+		"@supabase/ssr": "^0.8.0",
 		"@supabase/supabase-js": "^2.89.0",
 		"prisma": "^5.7.1"
 	}
