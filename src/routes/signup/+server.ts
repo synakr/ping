@@ -1,11 +1,16 @@
-import { json, error } from '@sveltejs/kit';
 import type { RequestHandler } from './$types';
+import { error } from '@sveltejs/kit';
 import { createServerClient } from '@supabase/ssr';
 import { PUBLIC_SUPABASE_URL, PUBLIC_SUPABASE_ANON_KEY } from '$env/static/public';
 
 export const POST: RequestHandler = async ({ request, cookies }) => {
-	// creating supabase client
-	const supabase = createServerClient(PUBLIC_SUPABASE_URL!, PUBLIC_SUPABASE_ANON_KEY!, {
+	const { email, password } = await request.json();
+
+	if (!email || !password) {
+		throw error(400, 'Email and password required');
+	}
+
+	const supabase = createServerClient(PUBLIC_SUPABASE_URL, PUBLIC_SUPABASE_ANON_KEY, {
 		cookies: {
 			get: (key) => cookies.get(key),
 			set: (key, value, options) => cookies.set(key, value, { path: '/', ...options }),
@@ -13,21 +18,15 @@ export const POST: RequestHandler = async ({ request, cookies }) => {
 		}
 	});
 
-	const { email, password } = await request.json();
-
-	if (!email || !password) {
-		throw error(400, 'Email and password required');
-	}
-
-	const { data, error: authError } = await supabase.auth.signInWithPassword({
+	const { error: authError } = await supabase.auth.signUp({
 		email,
 		password
 	});
 
 	if (authError) {
-		throw error(401, authError.message);
+		throw error(400, authError.message);
 	}
 
-	// return json(data.session);
+	// cookies may or may not be set depending on email confirmation
 	return new Response(null, { status: 201 });
 };
