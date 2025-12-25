@@ -8,10 +8,11 @@ datasource db {
 }
 
 model Todo {
-  id        String   @id @default(uuid())
+  id        String    @id @default(uuid())
   title     String
   userId    String
-  createdAt DateTime @default(now())
+  createdAt DateTime  @default(now())
+  deletedAt DateTime? @db.Timestamptz(6)
 
   @@index([userId])
 }

@@ -34,7 +34,8 @@ export const GET: RequestHandler = async ({ locals }) => {
 
 	const todos = await prisma.todo.findMany({
 		where: {
-			userId: locals.user.id
+			userId: locals.user.id,
+			deletedAt: null
 		},
 		orderBy: {
 			createdAt: 'desc'

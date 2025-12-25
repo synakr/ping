@@ -2,7 +2,9 @@
 	let title = '';
 	let errorMsg = '';
 	let successMsg = '';
+	let successTimer: ReturnType<typeof setTimeout> | null = null;
     import { onMount } from "svelte";
+	import { fade } from "svelte/transition";
 
     // correspons to post request
 	async function createTodo() {
@@ -21,8 +23,13 @@
 			return;
 		}
 
+		const created = await res.json();
+        todos = [created, ...todos];
 		title = '';
 		successMsg = 'Task created';
+
+		if (successTimer) clearTimeout(successTimer);
+        successTimer = setTimeout(() => (successMsg = ''), 2500);
 	}
 
     // corresponding to the get request
@@ -47,6 +54,16 @@
 			loading = false;
 		}
 	});
+
+	// corresponding to the delete button/request
+	async function deleteTodo(id:any) {
+		await fetch(`/api/todos/${id}`, {
+			method: 'DELETE',
+			credentials: 'include'
+		});
+
+		todos = todos.filter(t => t.id !== id);
+	}
 </script>
 
 <div class="min-h-screen bg-linear-to-br from-gray-50 to-gray-100 px-4 py-12">
@@ -78,10 +95,15 @@
 				{/if}
 
 				{#if successMsg}
-					<div class="mt-4 p-3 rounded-lg bg-green-50 border border-green-200">
-						<p class="text-sm text-green-800">{successMsg}</p>
-					</div>
-				{/if}
+                    <div class="fixed top-4 right-4 z-20 pointer-events-none">
+                        <div
+                            transition:fade
+                            class="pointer-events-auto flex items-center gap-2 rounded-xl bg-green-600 text-white shadow-lg px-4 py-3"
+                        >
+                            <p class="text-sm font-medium">{successMsg}</p>
+                        </div>
+                    </div>
+                {/if}
 			</div>
 
 			<div class="px-8 pb-8">
@@ -96,7 +118,15 @@
 				{:else}
 					<ul class="mt-6 divide-y divide-gray-200 border border-gray-200 rounded-lg overflow-hidden bg-white">
 						{#each todos as todo}
-							<li class="px-4 py-3 text-gray-900">{todo.title}</li>
+							<li class="flex items-center justify-between gap-3 px-4 py-3 text-gray-900">
+								<span>{todo.title}</span>
+								<button
+									on:click={() => deleteTodo(todo.id)}
+									class="inline-flex items-center gap-1 rounded-full border border-gray-300 px-3 py-1 text-l text-red-700 transition-all duration-200 hover:border-gray-400 hover:bg-gray-50 hover:text-gray-900 focus:outline-none focus:ring-2 focus:ring-gray-900 focus:ring-offset-1"
+								>
+									<span>Delete</span>
+								</button>
+							</li>
 						{/each}
 					</ul>
 				{/if}
