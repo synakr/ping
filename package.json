@@ -5,7 +5,7 @@
 	"type": "module",
 	"scripts": {
 	"dev": "svelte-kit dev",
-	"build": "prisma generate && npx svelte-kit build",
+	"build": "prisma generate && vite build",
 	"preview": "svelte-kit preview",
 	"postinstall": "prisma generate",
 	"prepare": "svelte-kit sync || echo ''",
